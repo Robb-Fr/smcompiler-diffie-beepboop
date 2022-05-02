@@ -1,6 +1,6 @@
 version: '3'
 services:
-  code:
+  tests:
     build: ./
     image: smc-523:latest
     container_name: smc-523-tests
