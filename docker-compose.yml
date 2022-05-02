@@ -1,0 +1,8 @@
+version: '3'
+services:
+  tests:
+    build: ./
+    image: smc-523:latest
+    container_name: smc-523-tests
+    volumes:
+    - ./smcompiler:/code_data
