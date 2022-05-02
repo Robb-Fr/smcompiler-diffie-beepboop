@@ -15,7 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build -t smc-523 .
-    - name: Runs tests
-      run: docker run -v smcompiler:/code_data --name smc-tests smc-523 pytest -s
-
+      run: docker build -t smc-523 .; docker run -v smcompiler:/code_data --name smc-tests smc-523 pytest -s
