@@ -35,7 +35,7 @@ def share_secret(secret: int, num_shares: int) -> List[Share]:
 
     shares = rd.sample(range(0,q),num_shares)
 
-    share_0 = secret - (sum(shares) mod % q)
+    share_0 = secret - (sum(shares) % q)
 
     shares.insert(0,share_0)
 
@@ -43,8 +43,7 @@ def share_secret(secret: int, num_shares: int) -> List[Share]:
 
 
 def reconstruct_secret(shares: List[Share]) -> int:
-    """Reconstruct the secret from shares."""
-    raise NotImplementedError("You need to implement this method.")
+    return sum(shares) % q
 
 
 def gen_prime(min: int, max: int) -> int:
