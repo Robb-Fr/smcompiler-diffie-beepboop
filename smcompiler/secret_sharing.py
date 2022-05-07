@@ -11,31 +11,33 @@ class Share:
     A secret share in a finite field.
     """
 
-    def __init__(self, *args, **kwargs):
+    FIELD_Q = gen_prime(10000, 100000)
+
+    def __init__(self, value, *args, **kwargs):
         # Adapt constructor arguments as you wish
-        raise NotImplementedError("You need to implement this method.")
+        self.value = value % FIELD_Q
+
 
     def __repr__(self):
         # Helps with debugging.
         raise NotImplementedError("You need to implement this method.")
 
     def __add__(self, other):
-        raise NotImplementedError("You need to implement this method.")
+        return Share((self.value + other.value) % FIELD_Q
 
     def __sub__(self, other):
-        raise NotImplementedError("You need to implement this method.")
+        return Share((self.value - other.value) % FIELD_Q
 
     def __mul__(self, other):
-        raise NotImplementedError("You need to implement this method.")
+        return Share((self.value * other.value) % FIELD_Q
 
 
 def share_secret(secret: int, num_shares: int) -> List[Share]:
     """Generate secret shares."""
-    q = gen_prime(10000, 100000)
 
-    shares = rd.sample(range(0,q),num_shares)
+    shares = rd.sample(range(0,FIELD_Q),num_shares)
 
-    share_0 = secret - (sum(shares) % q)
+    share_0 = secret - (sum(shares) % FIELD_Q)
 
     shares.insert(0,share_0)
 
@@ -43,8 +45,14 @@ def share_secret(secret: int, num_shares: int) -> List[Share]:
 
 
 def reconstruct_secret(shares: List[Share]) -> int:
-    return sum(shares) % q
+    return sum(shares) % FIELD_Q
 
+
+"""
+
+UTILITY FUNCTIONS 
+
+"""
 
 def gen_prime(min: int, max: int) -> int:
     n = rd.randint(min, max)
@@ -99,5 +107,3 @@ def split_n(n: int) -> (int, int):
     return s, t
 
 
-
-# Feel free to add as many methods as you want.
