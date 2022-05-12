@@ -25,6 +25,7 @@ def is_prime(k: int, n: int) -> bool:
 
     Pr[output maybe prime | n composite] ≤ 4 ^ -k
     With k = 5, our probability of failure is around 0.001
+    With k = 16, this probability is around 0,000000000232831
     """
 
     if n == 2:
@@ -45,7 +46,11 @@ def is_prime(k: int, n: int) -> bool:
     return True
 
 
-def gen_prime(min: int = 2 << 15, max: int = 2 << 16, k: int = 32) -> int:
+def gen_prime(min: int = 2 << 15, max: int = 2 << 16, k: int = 16) -> int:
+    """The default parameters return a number of 16 bits that is prime:
+    - With a probability of log(n)*4^-k = 16*4^-16 = 0,00000000372529
+    - In asymptotic time O(k*log(n)^4)"""
+
     n = randbelow(max - min + 1) + min
     while not is_prime(k=k, n=n):
         n = randbelow(max - min + 1) + min
