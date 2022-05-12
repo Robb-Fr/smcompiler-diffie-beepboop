@@ -1,7 +1,7 @@
 from secrets import randbelow
 
 
-def split_n(n: int) -> tuple[int, int]:
+def split_n(n: int) -> tuple((int, int)):
     """
     Utility function for Miller-Rabin Primality test
 
