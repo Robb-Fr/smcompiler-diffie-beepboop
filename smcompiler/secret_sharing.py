@@ -12,7 +12,8 @@ class Share:
     A secret share in a finite field.
     """
 
-    FIELD_Q = gen_prime()
+    # We could use gen_prime() at runtime statically but we for efficiency of tests we prefered having a pre-computed 20 bits numbers with a k=32
+    FIELD_Q = 3525679
 
     def __init__(self, value, *args, **kwargs):
         # Adapt constructor arguments as you wish
