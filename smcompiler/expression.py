@@ -39,15 +39,15 @@ class Expression:
         self.id = id
 
     def __add__(self, other): 
-        raise NotImplementedError("You need to implement this method.")
+        return AddOp(self, other)
 
 
     def __sub__(self, other):
-        raise NotImplementedError("You need to implement this method.")
+        return SubOp(self, other)
 
 
     def __mul__(self, other):
-        raise NotImplementedError("You need to implement this method.")
+        return MulOp(self, other)
 
 
     def __hash__(self):
@@ -74,7 +74,7 @@ class Scalar(Expression):
 
 
     def __hash__(self):
-        return
+        return hash(self.id)
 
 
     # Feel free to add as many methods as you like.
@@ -102,3 +102,18 @@ class Secret(Expression):
 
 
 # Feel free to add as many classes as you like.
+
+class AddOp(Expression):
+    def __init__(self,a,b):
+        self.a = a
+        self.b = b 
+
+class MultOp(Expression):
+    def __init__(self,a,b):
+        self.a = a
+        self.b = b 
+
+class SubOp(Expression):
+    def __init__(self,a,b):
+        self.a = a
+        self.b = b 
