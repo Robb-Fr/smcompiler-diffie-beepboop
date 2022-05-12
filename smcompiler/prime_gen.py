@@ -1,4 +1,4 @@
-import random as rd
+from secrets import randbelow
 
 
 def split_n(n: int) -> tuple[int, int]:
@@ -33,20 +33,20 @@ def is_prime(k: int, n: int) -> bool:
         return False
     s, t = split_n(n)
     for _ in range(k):
-        b = rd.randint(1, n - 1)
+        b = randbelow(n - 1) + 1
         x = (b**t) % n
         i = 0
         if x != 1:
             while x != (n - 1):
-                x = (x**2) % n
+                x = (x * x) % n
                 i += 1
                 if i == s or x == 1:
                     return False
     return True
 
 
-def gen_prime(min: int, max: int, k: int) -> int:
-    n = rd.randint(min, max)
+def gen_prime(min: int = 2 << 15, max: int = 2 << 16, k: int = 32) -> int:
+    n = randbelow(max - min + 1) + min
     while not is_prime(k=k, n=n):
-        n = rd.randint(min, max)
+        n = randbelow(max - min + 1) + min
     return n

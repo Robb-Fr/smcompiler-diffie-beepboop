@@ -28,6 +28,24 @@ def test_split():
 
 
 def test_prime_generation():
+    from math import sqrt
+
+    def sqrt_test_prime(n: int) -> bool:
+        for i in range(2, 1 + int(sqrt(n))):
+            if n % i == 0:
+                return False
+        return True
+
+    p = gen_prime(182, 103821)
+    assert p >= 182 and p <= 103821
+    assert sqrt_test_prime(p)
+
+    q = gen_prime()
+    assert q >= 2 << 15 and q <= 2 << 16
+    assert sqrt_test_prime(q)
+
+
+def test_shares_operations():
     p = Share(3)
     assert p.value == 3
     q = Share(6)

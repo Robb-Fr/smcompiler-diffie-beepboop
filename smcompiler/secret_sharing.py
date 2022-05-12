@@ -12,7 +12,7 @@ class Share:
     A secret share in a finite field.
     """
 
-    FIELD_Q = gen_prime(2 << 15, 2 << 16, 96)
+    FIELD_Q = gen_prime()
 
     def __init__(self, value, *args, **kwargs):
         # Adapt constructor arguments as you wish
