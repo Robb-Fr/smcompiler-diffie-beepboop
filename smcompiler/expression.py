@@ -47,7 +47,7 @@ class Expression:
 
 
     def __mul__(self, other):
-        return MulOp(self, other)
+        return MultOp(self, other)
 
 
     def __hash__(self):
