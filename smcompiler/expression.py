@@ -108,12 +108,21 @@ class AddOp(Expression):
         self.a = a
         self.b = b 
 
+    def get_operands(self):
+        return self.a, self.b
+
 class MultOp(Expression):
     def __init__(self,a,b):
         self.a = a
         self.b = b 
+    
+     def get_operands(self):
+        return self.a, self.b
 
 class SubOp(Expression):
     def __init__(self,a,b):
         self.a = a
-        self.b = b 
+        self.b = b
+        
+    def get_operands(self):
+        return self.a, self.b

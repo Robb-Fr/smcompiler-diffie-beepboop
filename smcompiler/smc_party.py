@@ -17,7 +17,11 @@ from typing import (
 from communication import Communication
 from expression import (
     Expression,
-    Secret
+    Scalar,
+    Secret,
+    AddOp,
+    MulOp,
+    SubOp
 )
 from protocol import ProtocolSpec
 from secret_sharing import(
@@ -56,6 +60,12 @@ class SMCParty:
         self.protocol_spec = protocol_spec
         self.value_dict = value_dict
 
+    def is_aggregating_client(self):
+        """
+        We specify the aggregating client as the first participant
+        """
+        return self.protocol_spec.participant_ids[0] == self.client_id
+
 
     def run(self) -> int:
         """
@@ -69,17 +79,60 @@ class SMCParty:
             self,
             expr: Expression
         ) -> Share:
-        # if expr is an addition operation:
-        #     ...
+        if isinstance(expr, AddOp):
+            x,y = expr.get_operands()
+            x = self.process_expression(x)
+            y = self.process_expression(y)
+            if (isinstance(x, Share) and isinstance(y, Share)) or self.is_aggregating_client():
+                return x + y
+            else:
+                if isinstance(x,Share):
+                    return x
+                else:
+                    return y
 
-        # if expr is a multiplication operation:
-        #     ...
+        elif isinstance(expr, SubOp):
+            x,y = expr.get_operands()
+            x = self.process_expression(x)
+            y = self.process_expression(y)
+            if (isinstance(x, Share) and isinstance(y, Share)) or self.is_aggregating_client():
+                return x - y
+            else:
+                if isinstance(x,Share):
+                    return x
+                else:
+                    return y
 
+        elif isinstance(expr, MulOp):
+            x,y = expr.get_operands()
+            x = self.process_expression(x)
+            y = self.process_expression(y)
+            a,b,c = self.comm.retrieve_beaver_triplet_shares(expr.id)
+            a = Share(a)
+            b = Share(b)
+            c = Share(c)
+
+            if (isinstance(x, Share) and isinstance(y, Share)) or self.is_aggregating_client():
+                # x_a = self.process_expression(SubOp(x,a))
+                # y_b = self.process_expression(SubOp(y,b))
+
+                # z_expr = AddOp(c, AddOp(MulOp(x,y_b), SubOp(MulOp(y,x_a),MulOp(x_a,y_b))))
+
+                # z = self.process_expression(z_expr)
+
+                x_a = x - a
+                y_b = y - b 
+                z = c + (x * y_b) + (y * x_a) - (x_a * y_b)
+
+            else:
+                return x * y
+
+        elif isinstance(expr, Secret):
         # if expr is a secret:
         #     ...
 
-        # if expr is a scalar:
-        #     ...
+        elif isinstance(expr, Scalar):
+            return Share(expr.value)
         #
         # Call specialized methods for each expression type, and have these specialized
         # methods in turn call `process_expression` on their sub-expressions to process
