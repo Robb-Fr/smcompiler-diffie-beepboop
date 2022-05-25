@@ -53,6 +53,8 @@ def share_secret(secret: int, num_shares: int) -> List[Share]:
 
     shares = [share_0] + shares
 
+    shares = [Share(val) for val in shares]
+
     return shares
 
 

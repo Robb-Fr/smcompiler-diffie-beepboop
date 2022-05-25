@@ -7,6 +7,7 @@ MODIFY THIS FILE.
 
 import collections
 import json
+import pickle
 from typing import (
     Dict,
     Set,
@@ -20,7 +21,7 @@ from expression import (
     Scalar,
     Secret,
     AddOp,
-    MulOp,
+    MultOp,
     SubOp
 )
 from protocol import ProtocolSpec
@@ -74,6 +75,19 @@ class SMCParty:
         self.process_expression(self.protocol_spec.expr)
         raise NotImplementedError("You need to implement this method.")
 
+    def send_secret_shares(self):
+        num_participants = len(self.protocol_spec.participant_ids)
+        for key in self.value_dict.keys():
+            secret_val = self.value_dict[key]
+            shares = share_secret(secret_val, num_participants)
+            for id in self.protocol_spec.participant_ids:
+                if id == self.client_id:
+                    return None
+                else:
+                    serialized_share = pickle.dumps(shares[id])
+                    self.comm.send_private_message(id, str(key.id.__hash__()), serialized_share)
+        
+        return None
 
     # Suggestion: To process expressions, make use of the *visitor pattern* like so:
     def process_expression(
