@@ -116,7 +116,7 @@ class MultOp(Expression):
         self.a = a
         self.b = b 
     
-     def get_operands(self):
+    def get_operands(self):
         return self.a, self.b
 
 class SubOp(Expression):

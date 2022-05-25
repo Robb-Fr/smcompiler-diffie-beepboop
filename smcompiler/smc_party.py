@@ -71,6 +71,7 @@ class SMCParty:
         """
         The method the client use to do the SMC.
         """
+        self.process_expression(self.protocol_spec.expr)
         raise NotImplementedError("You need to implement this method.")
 
 
@@ -128,11 +129,18 @@ class SMCParty:
                 return x * y
 
         elif isinstance(expr, Secret):
-        # if expr is a secret:
-        #     ...
+            if self.value_dict(expr) is not None: 
+                return Share(self.value_dict(expr))
+            else:
+                raise RuntimeError("Expr is/contains an empty secret")
+
+            # figure out what to do with secret: split into shares? 
 
         elif isinstance(expr, Scalar):
             return Share(expr.value)
+
+        else:
+            raise RuntimeError("Expr of unknown type (expected AddOp, SubOp, MulOp, Secret or Scalar")
         #
         # Call specialized methods for each expression type, and have these specialized
         # methods in turn call `process_expression` on their sub-expressions to process
