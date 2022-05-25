@@ -52,6 +52,9 @@ def gen_prime(min: int = 2 << 15, max: int = 2 << 16, k: int = 16) -> int:
     - In asymptotic time O(k*log(n)^4)"""
 
     n = randbelow(max - min + 1) + min
+    tested = set()
     while not is_prime(k=k, n=n):
-        n = randbelow(max - min + 1) + min
+        tested.add(n)
+        while n in tested:
+            n = randbelow(max - min + 1) + min
     return n
