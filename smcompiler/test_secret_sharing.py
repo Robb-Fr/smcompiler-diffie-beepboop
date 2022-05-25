@@ -59,7 +59,8 @@ def test_share_spliting():
     num_shares = 3
     shares = share_secret(secret, num_shares)
     assert len(shares) == num_shares
-    assert shares[0] == sum(shares) % Share.FIELD_Q
+    assert isinstance(shares[0], Share)
+    assert isinstance(sum(shares, start=Share(0)), Share)
 
 
 def test_secret_reconstruction():

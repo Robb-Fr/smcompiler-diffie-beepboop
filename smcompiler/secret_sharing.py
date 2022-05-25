@@ -46,21 +46,18 @@ class Share:
 
 def share_secret(secret: int, num_shares: int) -> List[Share]:
     """Generate secret shares."""
-    FIELD_Q = Share().FIELD_Q
-    shares = rd.sample(range(0, FIELD_Q), num_shares)
+    FIELD_Q = Share.FIELD_Q
+    shares_values = rd.sample(range(0, FIELD_Q), num_shares - 1)
 
-    share_0 = secret - (sum(shares) % FIELD_Q)
+    share_0 = secret - (sum(shares_values) % FIELD_Q)
 
-    shares = [share_0] + shares
+    shares_values = [share_0] + shares_values
 
-    shares = [Share(val) for val in shares]
-
-    return shares
+    return [Share(val) for val in shares_values]
 
 
 def reconstruct_secret(shares: List[Share]) -> int:
-    FIELD_Q = Share().FIELD_Q
-    return sum(shares) % FIELD_Q
+    return sum(shares, start=Share(0)).value
 
 
 """
