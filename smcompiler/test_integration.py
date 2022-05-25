@@ -139,7 +139,7 @@ def test_suite4():
     bob_secret = Secret()
     charlie_secret = Secret()
 
-    parties = {
+    parties = { 
         "Alice": {alice_secret: 3},
         "Bob": {bob_secret: 14},
         "Charlie": {charlie_secret: 2}
