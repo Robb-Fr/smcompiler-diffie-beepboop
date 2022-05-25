@@ -8,7 +8,7 @@ from prime_gen import *
 from secret_sharing import *
 
 
-def test_split():
+def test_split_prime_gen():
     s, t = split_n(21)
     assert (2**s) * t + 1 == 21
     s, t = split_n(17)
@@ -50,3 +50,23 @@ def test_shares_operations():
     assert p.value == 3
     q = Share(6)
     assert p + q == Share(9)
+    assert p * q == Share(18)
+    assert q - p == Share(3)
+
+
+def test_share_spliting():
+    secret = 12
+    num_shares = 3
+    shares = share_secret(secret, num_shares)
+    assert len(shares) == num_shares
+    assert shares[0] == sum(shares) % Share.FIELD_Q
+
+
+def test_secret_reconstruction():
+    secret = 12
+    num_shares = 3
+    shares = share_secret(secret, num_shares)
+    assert reconstruct_secret(shares) == secret
+    num_shares_2 = 5
+    shares_2 = share_secret(secret, num_shares_2)
+    assert reconstruct_secret(shares_2) == secret
