@@ -60,6 +60,7 @@ class SMCParty:
         self.client_id = client_id
         self.protocol_spec = protocol_spec
         self.value_dict = value_dict
+        self.my_shares = {}
 
     def is_aggregating_client(self):
         """
@@ -72,6 +73,8 @@ class SMCParty:
         """
         The method the client use to do the SMC.
         """
+        self.send_secret_shares()
+        
         self.process_expression(self.protocol_spec.expr)
         raise NotImplementedError("You need to implement this method.")
 
@@ -82,12 +85,11 @@ class SMCParty:
             shares = share_secret(secret_val, num_participants)
             for id in self.protocol_spec.participant_ids:
                 if id == self.client_id:
-                    return None
+                    self.my_shares[key.id] = shares[id]
                 else:
                     serialized_share = pickle.dumps(shares[id])
                     self.comm.send_private_message(id, str(key.id.__hash__()), serialized_share)
-        
-        return None
+
 
     # Suggestion: To process expressions, make use of the *visitor pattern* like so:
     def process_expression(
