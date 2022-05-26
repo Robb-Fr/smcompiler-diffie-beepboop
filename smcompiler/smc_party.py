@@ -111,35 +111,35 @@ class SMCParty:
         x_share = self.process_expression(x)
         y_share = self.process_expression(y)
         has_scalar_operand = expr.scalar_operand()
-        if has_scalar_operand == 0 or self.is_aggregating_client():
-            if isinstance(expr, AddOp):
-                return x_share + y_share
-            if isinstance(expr, SubOp):
-                return x_share - y_share
-            if isinstance(expr, MultOp):
-                if has_scalar_operand > 0:
-                    # one or more are scalar operands, we are aggregating client
-                    # we can freely multiply by a constant or multiply 2 constants
-                    return x_share * y_share
+        if isinstance(expr, AddOp) or isinstance(expr, SubOp):
+            if has_scalar_operand == 0 or self.is_aggregating_client():
+                # we do not have constant to add/sub or we can because we're aggregators
+                if isinstance(expr, AddOp):
+                    return x_share + y_share
+                if isinstance(expr, SubOp):
+                    return x_share - y_share
+            else:
+                if has_scalar_operand == 3:
+                    # both operands are scalar, nothing to add to secret sharing if not aggregating
+                    return Share(0)
+                elif has_scalar_operand == 2:
+                    # right operand only is scalar, send my left share
+                    return x_share
+                elif has_scalar_operand == 1:
+                    # left operand only is scalar, send my right share
+                    return y_share
                 else:
-                    raise NotImplementedError(
-                        "Implement MultOp between secrets as described in comments below"
-                    )
+                    raise ValueError("Unkown value of the scalar_operand method")
+        elif isinstance(expr, MultOp):
+            if has_scalar_operand > 0:
+                # one or more are scalar operands, we are in multiplication by constant
+                return x_share * y_share
             else:
-                raise TypeError("Unrecognized type of operation")
+                raise NotImplementedError(
+                    "Implement MultOp between secrets as described in comments below"
+                )
         else:
-            if has_scalar_operand == 3:
-                # both operands are scalar, nothing to add to secret sharing if not aggregating
-                return Share(0)
-            elif has_scalar_operand == 2:
-                # right operand only is scalar, send my left share
-                return x_share
-            elif has_scalar_operand == 1:
-                # left operand only is scalar, send my right share
-                return y_share
-            else:
-                raise ValueError("Unkown value of the scalar_operand method")
-
+            raise TypeError("Unrecognized type of operation")
         # elif isinstance(expr, SubOp):
         #     if has_scalar_operand == 0 or self.is_aggregating_client():
         #         return x - y
