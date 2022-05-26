@@ -5,14 +5,11 @@ MODIFY THIS FILE.
 """
 # You might want to import more classes if needed.
 
-import collections
-import json
-from time import sleep
 import pickle
 from typing import Dict, Set, Tuple, Union
 
 from communication import Communication
-from expression import AddOp, Expression, MultOp, Scalar, Secret, SubOp, Op
+from expression import AddOp, Expression, MultOp, Op, Scalar, Secret, SubOp
 from protocol import ProtocolSpec
 from secret_sharing import Share, reconstruct_secret, share_secret
 
