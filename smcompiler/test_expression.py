@@ -25,3 +25,18 @@ def test_expr_equality():
     expr = (a + b) * Scalar(10) + Scalar(3)
     expr_2 = (a + b) * Scalar(10) + Scalar(3)
     assert expr != expr_2
+
+
+def test_operations():
+    a = Secret()
+    b = Secret(3)
+    add_op = a + b
+    assert (a, b) == add_op.get_operands()
+    assert add_op.scalar_operand() == 0
+    c = Scalar(12)
+    new_op = c + add_op
+    assert new_op.scalar_operand() == 1
+    assert (c, add_op) == new_op.get_operands()
+    d = Scalar(5)
+    scal_op = c * d
+    assert scal_op.scalar_operand() == 3
