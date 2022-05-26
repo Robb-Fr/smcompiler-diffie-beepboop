@@ -82,37 +82,40 @@ class Secret(Expression):
 # Feel free to add as many classes as you like.
 
 
-class AddOp(Expression):
-    def __init__(self, a, b):
+class Op(Expression):
+    def __init__(self, a: Expression, b: Expression):
+        if not (isinstance(a, Expression) and isinstance(b, Expression)):
+            raise ValueError("Can only construct operation between expressions")
         self.a = a
         self.b = b
 
-    def get_operands(self) -> Tuple[Expression]:
+    def get_operands(self) -> Tuple[Expression, Expression]:
         return self.a, self.b
 
+    def scalar_operand(self) -> int:
+        """Returns 0 if none of the operands is a scalar, 1 if the left one only is, 2 if the right one only is and 3 if both are. Could be written:
+        if isinstance(self.a, Scalar) and not isinstance(self.b, Scalar):
+            return 1
+        elif not isinstance(self.a, Scalar) and isinstance(self.b, Scalar):
+            return 2
+        elif isinstance(self.a, Scalar) and isinstance(self.b, Scalar):
+            return 3
+        else:
+            return 0
+        """
+        return int(isinstance(self.a, Scalar)) + (int(isinstance(self.b, Scalar)) << 1)
+
+
+class AddOp(Op):
     def __repr__(self) -> str:
         return f"({repr(self.a)} + {self.b})"
 
 
-class MultOp(Expression):
-    def __init__(self, a, b):
-        self.a = a
-        self.b = b
-
-    def get_operands(self) -> Tuple[Expression]:
-        return self.a, self.b
-
+class MultOp(Op):
     def __repr__(self) -> str:
         return f"{repr(self.a)} * {self.b}"
 
 
-class SubOp(Expression):
-    def __init__(self, a, b):
-        self.a = a
-        self.b = b
-
-    def get_operands(self):
-        return self.a, self.b
-    
+class SubOp(Op):
     def __repr__(self) -> str:
         return f"({repr(self.a)} - {self.b})"
