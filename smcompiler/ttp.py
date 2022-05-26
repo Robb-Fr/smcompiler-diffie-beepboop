@@ -4,6 +4,9 @@ Trusted parameters generator.
 MODIFY THIS FILE.
 """
 
+import random as rd
+import math
+
 import collections
 from typing import (
     Dict,
@@ -27,6 +30,14 @@ class TrustedParamGenerator:
 
     def __init__(self):
         self.participant_ids: Set[str] = set()
+        self.num_participants = self.participant_ids.size()
+
+        self.operation_triplets = {}
+
+        self.client_id_dict = {}
+
+        for id, i in zip(self.participant_ids, range(0, self.participant_ids)):
+            self.client_id_dict[id] = i 
 
 
     def add_participant(self, participant_id: str) -> None:
@@ -34,11 +45,31 @@ class TrustedParamGenerator:
         Add a participant.
         """
         self.participant_ids.add(participant_id)
+        self.num_participants += 1
+        self.client_id_dict[participant_id] = self.num_participants
 
     def retrieve_share(self, client_id: str, op_id: str) -> Tuple[Share, Share, Share]:
         """
         Retrieve a triplet of shares for a given client_id.
         """
-        raise NotImplementedError("You need to implement this method.")
+        int_id = self.client_id_dict[client_id]
+
+        if op_id not in self.operation_triplets:
+            self.operation_triplets[op_id] = BeaverTriplet(self.num_participants)
+
+        beaver_triplet = self.operation_triplets[op_id]
+        return beaver_triplet.get_shares(int_id, self.num_participants)
 
     # Feel free to add as many methods as you want.
+
+class BeaverTriplet:
+    def __init__(self, num_participants):
+        self.a, self.b = rd.sample(range(0, int(math.floor(math.sqrt(Share.FIELD_Q)))), 2)
+        self.c = self.a * self.b
+
+        self.a_shares = share_secret(self.a, num_participants)
+        self.b_shares = share_secret(self.b, num_participants)
+        self.c_shares = share_secret(self.c, num_participants)
+
+    def get_shares(self, client_id: int) -> Tuple[Share, Share, Share]:
+        return self.a_shares[client_id], self.b_shares[client_id], self.a_shares[client_id]
