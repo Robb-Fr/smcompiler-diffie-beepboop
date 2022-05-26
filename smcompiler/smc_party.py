@@ -77,7 +77,6 @@ class SMCParty:
                         id, str(secret.id.__hash__()), serialized_share
                     )
         self.comm.publish_message(self.client_id + "-sent", "Done")
-        # return None
 
     # Suggestion: To process expressions, make use of the *visitor pattern* like so:
     def process_expression(self, expr: Expression) -> Share:
@@ -121,12 +120,6 @@ class SMCParty:
             if (
                 isinstance(x, Share) and isinstance(y, Share)
             ) or self.is_aggregating_client():
-                # x_a = self.process_expression(SubOp(x,a))
-                # y_b = self.process_expression(SubOp(y,b))
-
-                # z_expr = AddOp(c, AddOp(MulOp(x,y_b), SubOp(MulOp(y,x_a),MulOp(x_a,y_b))))
-
-                # z = self.process_expression(z_expr)
 
                 x_a = x - a
                 y_b = y - b
