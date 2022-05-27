@@ -86,6 +86,7 @@ class Op(Expression):
     def __init__(self, a: Expression, b: Expression):
         if not (isinstance(a, Expression) and isinstance(b, Expression)):
             raise ValueError("Can only construct operation between expressions")
+        super().__init__()
         self.a = a
         self.b = b
 

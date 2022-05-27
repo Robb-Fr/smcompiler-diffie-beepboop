@@ -135,9 +135,14 @@ class SMCParty:
                 # one or more are scalar operands, we are in multiplication by constant
                 return x_share * y_share
             else:
-                raise NotImplementedError(
-                    "Implement MultOp between secrets as described in comments below"
-                )
+                a, b, c = self.comm.retrieve_beaver_triplet_shares(expr.id)
+                a = Share(a)
+                b = Share(b)
+                c = Share(c)
+                x_a = x_share - a
+                y_b = y_share - b
+                z = c + (x * y_b) + (y * x_a) - (x_a * y_b)
+                return z
         else:
             raise TypeError("Unrecognized type of operation")
         # elif isinstance(expr, SubOp):

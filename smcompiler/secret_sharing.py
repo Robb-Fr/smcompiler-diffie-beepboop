@@ -17,31 +17,31 @@ class Share:
 
     def __init__(self, value, *args, **kwargs):
         # Adapt constructor arguments as you wish
-        self.value = value % self.FIELD_Q
+        self.bn = value % self.FIELD_Q
 
     def __repr__(self):
         # Helps with debugging.
-        return "<Share - {} mod {}>".format(self.value, self.FIELD_Q)
+        return "<Share - {} mod {}>".format(self.bn, self.FIELD_Q)
 
     def __add__(self, other):
         if not isinstance(other, Share):
             raise TypeError("Can only operate between shares")
-        return Share((self.value + other.value) % self.FIELD_Q)
+        return Share((self.bn + other.bn) % self.FIELD_Q)
 
     def __sub__(self, other):
         if not isinstance(other, Share):
             raise TypeError("Can only operate between shares")
-        return Share((self.value - other.value) % self.FIELD_Q)
+        return Share((self.bn - other.bn) % self.FIELD_Q)
 
     def __mul__(self, other):
         if not isinstance(other, Share):
             raise TypeError("Can only operate between shares")
-        return Share((self.value * other.value) % self.FIELD_Q)
+        return Share((self.bn * other.bn) % self.FIELD_Q)
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Share):
             raise TypeError("Can only operate between shares")
-        return self.value == other.value
+        return self.bn == other.bn
 
 
 def share_secret(secret: int, num_shares: int) -> List[Share]:
@@ -57,7 +57,7 @@ def share_secret(secret: int, num_shares: int) -> List[Share]:
 
 
 def reconstruct_secret(shares: List[Share]) -> int:
-    return sum(shares, start=Share(0)).value
+    return sum(shares, start=Share(0)).bn
 
 
 """

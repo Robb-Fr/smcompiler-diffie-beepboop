@@ -47,7 +47,7 @@ def test_prime_generation():
 
 def test_shares_operations():
     p = Share(3)
-    assert p.value == 3
+    assert p.bn == 3
     q = Share(6)
     assert p + q == Share(9)
     assert p * q == Share(18)
