@@ -30,13 +30,13 @@ class TrustedParamGenerator:
 
     def __init__(self):
         self.participant_ids: Set[str] = set()
-        self.num_participants = self.participant_ids.size()
+        self.num_participants = len(self.participant_ids)
 
         self.operation_triplets = {}
 
         self.client_id_dict = {}
 
-        for id, i in zip(self.participant_ids, range(0, self.participant_ids)):
+        for id, i in zip(self.participant_ids, range(0, self.num_participants)):
             self.client_id_dict[id] = i 
 
 
