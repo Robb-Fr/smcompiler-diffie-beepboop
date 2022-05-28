@@ -36,8 +36,6 @@ class TrustedParamGenerator:
 
         self.client_id_dict = {}
 
-        for id, i in zip(self.participant_ids, range(0, self.num_participants)):
-            self.client_id_dict[id] = i 
 
 
     def add_participant(self, participant_id: str) -> None:
@@ -46,7 +44,7 @@ class TrustedParamGenerator:
         """
         self.participant_ids.add(participant_id)
         self.num_participants += 1
-        self.client_id_dict[participant_id] = self.num_participants
+        self.client_id_dict[participant_id] = self.num_participants - 1
 
     def retrieve_share(self, client_id: str, op_id: str) -> Tuple[Share, Share, Share]:
         """
@@ -72,4 +70,4 @@ class BeaverTriplet:
         self.c_shares = share_secret(self.c, num_participants)
 
     def get_shares(self, client_id: int) -> Tuple[Share, Share, Share]:
-        return self.a_shares[client_id-1], self.b_shares[client_id-1], self.a_shares[client_id-1]
+        return self.a_shares[client_id], self.b_shares[client_id], self.c_shares[client_id]
