@@ -141,7 +141,15 @@ class SMCParty:
                 c = Share(c)
                 x_a = x_share - a
                 y_b = y_share - b
-                z = c + (x * y_b) + (y * x_a) - (x_a * y_b)
+                self.comm.publish_message('beaver:x_a' + str(expr.id.__hash__()), pickle.dumps(x_a))
+                self.comm.publish_message('beaver:y_b' + str(expr.id.__hash__()), pickle.dumps(y_b))
+                for client in self.protocol_spec.participant_ids:
+                    if client != self.client_id:
+                        x_a = x_a + pickle.loads(self.comm.retrieve_public_message(client, 'beaver:x_a' + str(expr.id.__hash__())))
+                        y_b = y_b + pickle.loads(self.comm.retrieve_public_message(client, 'beaver:y_b' + str(expr.id.__hash__())))
+                z = c + (x_share * y_b) + (y_share * x_a) 
+                if self.is_aggregating_client():
+                    z = z - (x_a * y_b)
                 return z
         else:
             raise TypeError("Unrecognized type of operation")
