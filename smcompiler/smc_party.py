@@ -28,6 +28,7 @@ class SMCParty:
         protocol_spec (ProtocolSpec): Protocol specification
         value_dict (dict): Dictionary assigning values to secrets belonging to this client.
         my_shares (Dict[Secret, Share]): dictionnary associating this client's share for the given secrets
+        b_triple (Dict[Expression, Tuple[int, int, int]]): the retrieved shares for the seen expressions
     """
 
     def __init__(
@@ -44,6 +45,7 @@ class SMCParty:
         self.protocol_spec = protocol_spec
         self.value_dict = value_dict
         self.my_shares = {}
+        self.b_triplet = {}
 
     def is_aggregating_client(self):
         """
@@ -98,6 +100,14 @@ class SMCParty:
             self.my_shares[secret] = share
             return share
 
+    def retrieve_biever_triplet(self, expr: Expression) -> Tuple[int, int, int]:
+        if expr in self.b_triplet:
+            return self.b_triplet[expr]
+        else:
+            triplet = self.comm.retrieve_beaver_triplet_shares(expr.id)
+            self.b_triplet[expr] = triplet
+            return triplet
+
     # Suggestion: To process expressions, make use of the *visitor pattern* like so:
     def process_expression(self, expr: Expression) -> Share:
         if isinstance(expr, Scalar):
@@ -135,64 +145,37 @@ class SMCParty:
                 # one or more are scalar operands, we are in multiplication by constant
                 return x_share * y_share
             else:
-                a, b, c = self.comm.retrieve_beaver_triplet_shares(expr.id)
+                a, b, c = self.retrieve_biever_triplet(expr)
                 a = Share(a)
                 b = Share(b)
                 c = Share(c)
                 x_a = x_share - a
                 y_b = y_share - b
-                self.comm.publish_message('beaver:x_a' + str(expr.id.__hash__()), pickle.dumps(x_a))
-                self.comm.publish_message('beaver:y_b' + str(expr.id.__hash__()), pickle.dumps(y_b))
+                self.comm.publish_message(
+                    "beaver:x_a" + str(expr.id.__hash__()), pickle.dumps(x_a)
+                )
+                self.comm.publish_message(
+                    "beaver:y_b" + str(expr.id.__hash__()), pickle.dumps(y_b)
+                )
                 for client in self.protocol_spec.participant_ids:
                     if client != self.client_id:
-                        x_a = x_a + pickle.loads(self.comm.retrieve_public_message(client, 'beaver:x_a' + str(expr.id.__hash__())))
-                        y_b = y_b + pickle.loads(self.comm.retrieve_public_message(client, 'beaver:y_b' + str(expr.id.__hash__())))
-                z = c + (x_share * y_b) + (y_share * x_a) 
+                        x_a = x_a + pickle.loads(
+                            self.comm.retrieve_public_message(
+                                client, "beaver:x_a" + str(expr.id.__hash__())
+                            )
+                        )
+                        y_b = y_b + pickle.loads(
+                            self.comm.retrieve_public_message(
+                                client, "beaver:y_b" + str(expr.id.__hash__())
+                            )
+                        )
+                z = c + (x_share * y_b) + (y_share * x_a)
                 if self.is_aggregating_client():
                     z = z - (x_a * y_b)
                 return z
         else:
             raise TypeError("Unrecognized type of operation")
-        # elif isinstance(expr, SubOp):
-        #     if has_scalar_operand == 0 or self.is_aggregating_client():
-        #         return x - y
-        #     else:
-        #         if has_scalar_operand == 3:
-        #             return Share(0)
-        #         elif has_scalar_operand == 2:
-        #             return x_share
-        #         elif has_scalar_operand == 1:
-        #             return y_share
-        #         else:
-        #             raise ValueError("Unkown value of the scalar_operand method")
 
-        # elif isinstance(expr, MultOp):
-        #     x, y = expr.get_operands()
-        #     x = self.process_expression(x)
-        #     y = self.process_expression(y)
-        #     a, b, c = self.comm.retrieve_beaver_triplet_shares(expr.id)
-        #     a = Share(a)
-        #     b = Share(b)
-        #     c = Share(c)
-
-        #     if (
-        #         isinstance(x, Share) and isinstance(y, Share)
-        #     ) or self.is_aggregating_client():
-        #         # x_a = self.process_expression(SubOp(x,a))
-        #         # y_b = self.process_expression(SubOp(y,b))
-
-        #         # z_expr = AddOp(c, AddOp(MulOp(x,y_b), SubOp(MulOp(y,x_a),MulOp(x_a,y_b))))
-
-        #         # z = self.process_expression(z_expr)
-
-        #         x_a = x - a
-        #         y_b = y - b
-        #         z = c + (x * y_b) + (y * x_a) - (x_a * y_b)
-
-        #     else:
-        #         return x * y
-
-        #
         # Call specialized methods for each expression type, and have these specialized
         # methods in turn call `process_expression` on their sub-expressions to process
         # further.
