@@ -1,11 +1,16 @@
 """
 Test for measuring performance with pytest-benchmark
 """
+import inspect
+import json
 import random as rd
 import time
 from multiprocessing import Process, Queue
+from os.path import exists
+from typing import Optional
 
 import pytest
+import requests
 
 from expression import Expression, Scalar, Secret
 from protocol import ProtocolSpec
@@ -118,7 +123,7 @@ def check_results_stop_serv_proc(
     server_proc.terminate()
     server_proc.join()
 
-    time.sleep(2)
+    time.sleep(3)
     print("Server stopped.")
 
     res_0 = results[0]
@@ -126,10 +131,30 @@ def check_results_stop_serv_proc(
     assert all([res == res_0 for res in results])
 
 
+def write_comm_cost(caller: str, protocol="http", host="localhost", port=5000) -> None:
+    comm_cost = requests.get(f"{protocol}://{host}:{port}/communication_cost")
+    if comm_cost.status_code == 200:
+        comm_cost = int(comm_cost.content)
+        if not exists("communication_cost.json"):
+            with open("communication_cost.json", "w") as f:
+                json.dump(dict(), f)
+
+        with open("communication_cost.json", "r") as f:
+            comm_cost_dict = json.load(f)
+
+        comm_cost_dict[caller] = comm_cost
+
+        with open("communication_cost.json", "w") as f:
+            json.dump(comm_cost_dict, f)
+    time.sleep(2)
+
+
 def test_nb_parties_2(benchmark):
     parties, expr = parametrized_parties_expr(nb_parties=2, nb_secret_additions=1)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -138,6 +163,8 @@ def test_nb_parties_4(benchmark):
     parties, expr = parametrized_parties_expr(nb_parties=4, nb_secret_additions=1)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -146,6 +173,8 @@ def test_nb_parties_8(benchmark):
     parties, expr = parametrized_parties_expr(nb_parties=8, nb_secret_additions=1)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -154,6 +183,8 @@ def test_nb_parties_16(benchmark):
     parties, expr = parametrized_parties_expr(nb_parties=16, nb_secret_additions=1)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -162,6 +193,8 @@ def test_nb_parties_32(benchmark):
     parties, expr = parametrized_parties_expr(nb_parties=32, nb_secret_additions=1)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -170,6 +203,8 @@ def test_nb_sec_add_1(benchmark):
     parties, expr = parametrized_parties_expr(nb_secret_additions=1)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -178,6 +213,8 @@ def test_nb_sec_add_4(benchmark):
     parties, expr = parametrized_parties_expr(nb_secret_additions=4)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -186,6 +223,8 @@ def test_nb_sec_add_32(benchmark):
     parties, expr = parametrized_parties_expr(nb_secret_additions=32)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -194,6 +233,8 @@ def test_nb_sec_add_256(benchmark):
     parties, expr = parametrized_parties_expr(nb_secret_additions=256)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -202,6 +243,8 @@ def test_nb_sec_add_512(benchmark):
     parties, expr = parametrized_parties_expr(nb_secret_additions=512)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -210,6 +253,8 @@ def test_nb_scal_add_1(benchmark):
     parties, expr = parametrized_parties_expr(nb_scalar_additions=1)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -218,6 +263,8 @@ def test_nb_scal_add_4(benchmark):
     parties, expr = parametrized_parties_expr(nb_scalar_additions=4)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -226,6 +273,8 @@ def test_nb_scal_add_32(benchmark):
     parties, expr = parametrized_parties_expr(nb_scalar_additions=32)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -234,6 +283,8 @@ def test_nb_scal_add_256(benchmark):
     parties, expr = parametrized_parties_expr(nb_scalar_additions=256)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -242,6 +293,8 @@ def test_nb_scal_add_512(benchmark):
     parties, expr = parametrized_parties_expr(nb_scalar_additions=512)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -250,6 +303,8 @@ def test_nb_sec_mul_1(benchmark):
     parties, expr = parametrized_parties_expr(nb_secret_multiplications=1)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -258,6 +313,8 @@ def test_nb_sec_mul_4(benchmark):
     parties, expr = parametrized_parties_expr(nb_secret_multiplications=4)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -266,6 +323,8 @@ def test_nb_sec_mul_32(benchmark):
     parties, expr = parametrized_parties_expr(nb_secret_multiplications=32)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -274,6 +333,8 @@ def test_nb_sec_mul_256(benchmark):
     parties, expr = parametrized_parties_expr(nb_secret_multiplications=256)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -282,6 +343,8 @@ def test_nb_sec_mul_400(benchmark):
     parties, expr = parametrized_parties_expr(nb_secret_multiplications=400)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -290,6 +353,8 @@ def test_nb_scal_mul_1(benchmark):
     parties, expr = parametrized_parties_expr(nb_scalar_multiplications=1)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -298,6 +363,8 @@ def test_nb_scal_mul_4(benchmark):
     parties, expr = parametrized_parties_expr(nb_scalar_multiplications=4)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -306,6 +373,8 @@ def test_nb_scal_mul_32(benchmark):
     parties, expr = parametrized_parties_expr(nb_scalar_multiplications=32)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -314,6 +383,8 @@ def test_nb_scal_mul_256(benchmark):
     parties, expr = parametrized_parties_expr(nb_scalar_multiplications=256)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))
 
@@ -322,5 +393,7 @@ def test_nb_scal_mul_400(benchmark):
     parties, expr = parametrized_parties_expr(nb_scalar_multiplications=400)
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
     benchmark(run_processes, clients, queue)
     check_results_stop_serv_proc(server_proc, queue, len(clients))

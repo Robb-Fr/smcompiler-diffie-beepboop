@@ -18,16 +18,33 @@ app: Flask = Flask("Trusted Third Party Server")
 store: Dict[str, Dict[Tuple[str, str], bytes]] = collections.defaultdict(dict)
 ttp: TrustedParamGenerator = TrustedParamGenerator()
 
+"""ADDED CODE FOR COMMUNICATION COST EVALUATION"""
+
+
+@app.route("/communication_cost", methods=["GET"])
+def communication_cost():
+    """
+    Retrieves the number of bytes the server sent since the begining. Only GETed objects are counted to avoid double counting information sending.
+    """
+    return str(_get_value("public", ("communication", "cost")) or 0), 200
+
+
+"""END OF ADDED CODE FOR COMMUNICATION COST EVALUATION"""
+
 
 @app.route("/private/<sender_id>/<receiver_id>/<label>", methods=["POST"])
 def send_private_message(sender_id: str, receiver_id: str, label: str):
     """
     The client send a private message to the server.
     """
-    print(
-        f"[ SEND     ] SENDER {sender_id} / LABEL {label} / RECEIVER {receiver_id}"
-    )
+    print(f"[ SEND     ] SENDER {sender_id} / LABEL {label} / RECEIVER {receiver_id}")
     _set_value("private", (receiver_id, label), request.get_data())
+    # nb_observed_bytes = _get_value("public", ("communication", "cost")) or 0
+    # _set_value(
+    #     "public",
+    #     ("communication", "cost"),
+    #     nb_observed_bytes + sys.getsizeof(request.get_data()),
+    # )
     return Response(status=200)
 
 
@@ -39,6 +56,10 @@ def retrieve_private_message(receiver_id: str, label: str):
     res = _get_value("private", (receiver_id, label))
     if res is not None:
         print(f"[ RETRIEVE ] RECEIVER {receiver_id} / LABEL {label}")
+        nb_observed_bytes = _get_value("public", ("communication", "cost")) or 0
+        _set_value(
+            "public", ("communication", "cost"), nb_observed_bytes + sys.getsizeof(res)
+        )
         return res, 200
 
     return Response(status=404)
@@ -51,6 +72,12 @@ def publish_message(sender_id: str, label: str):
     """
     print(f"[ PUBLISH  ] SENDER {sender_id} / LABEL {label}")
     _set_value("public", (sender_id, label), request.get_data())
+    # nb_observed_bytes = _get_value("public", ("communication", "cost")) or 0
+    # _set_value(
+    #     "public",
+    #     ("communication", "cost"),
+    #     nb_observed_bytes + sys.getsizeof(request.get_data()),
+    # )
     return Response(status=200)
 
 
@@ -64,6 +91,10 @@ def retrieve_public_message(receiver_id: str, sender_id: str, label: str):
         print(
             f"[ RETRIEVE ] RECEIVER {receiver_id}. LABEL {label} / SENDER {sender_id}"
         )
+        nb_observed_bytes = _get_value("public", ("communication", "cost")) or 0
+        _set_value(
+            "public", ("communication", "cost"), nb_observed_bytes + sys.getsizeof(res)
+        )
         return res, 200
     return Response(status=404)
 
@@ -75,6 +106,12 @@ def retrieve_share(client_id: str, op_id: str):
     """
     shares = ttp.retrieve_share(client_id, op_id)
     # TODO: fixme
+    nb_observed_bytes = _get_value("public", ("communication", "cost")) or 0
+    _set_value(
+        "public",
+        ("communication", "cost"),
+        nb_observed_bytes + sys.getsizeof(jsonify([share.bn for share in shares])),
+    )
     return jsonify([share.bn for share in shares]), 200
 
 

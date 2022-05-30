@@ -1,0 +1,12 @@
+{
+    "test_nb_parties_2": 430,
+    "test_nb_parties_4": 2046,
+    "test_nb_parties_8": 8302,
+    "test_nb_parties_16": 32910,
+    "test_nb_parties_32": 130510,
+    "test_nb_sec_add_4": 1290,
+    "test_nb_sec_add_32": 1290,
+    "test_nb_sec_add_256": 1290,
+    "test_nb_sec_add_512": 1290,
+    "test_nb_sec_add_1": 1112
+}
