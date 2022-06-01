@@ -1,0 +1,111 @@
+{
+    "machine_info": {
+        "node": "ubuntu-robb",
+        "processor": "aarch64",
+        "machine": "aarch64",
+        "python_compiler": "GCC 11.2.0",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.10.4",
+        "python_version": "3.10.4",
+        "python_build": [
+            "main",
+            "Apr  2 2022 09:04:19"
+        ],
+        "release": "5.15.0-33-generic",
+        "system": "Linux",
+        "cpu": {
+            "python_version": "3.10.4.final.0 (64 bit)",
+            "cpuinfo_version": [
+                8,
+                0,
+                0
+            ],
+            "cpuinfo_version_string": "8.0.0",
+            "arch": "ARM_8",
+            "bits": 64,
+            "count": 8,
+            "arch_string_raw": "aarch64",
+            "flags": [
+                "aes",
+                "asimd",
+                "asimddp",
+                "asimdfhm",
+                "asimdhp",
+                "asimdrdm",
+                "atomics",
+                "cpuid",
+                "crc32",
+                "dcpodp",
+                "dcpop",
+                "dit",
+                "evtstrm",
+                "fcma",
+                "flagm",
+                "flagm2",
+                "fp",
+                "fphp",
+                "frint",
+                "ilrcpc",
+                "jscvt",
+                "lrcpc",
+                "paca",
+                "pacg",
+                "pmull",
+                "sb",
+                "sha1",
+                "sha2",
+                "sha3",
+                "sha512",
+                "uscat"
+            ],
+            "vendor_id_raw": "0x00"
+        }
+    },
+    "commit_info": {
+        "id": "ce1b5dd44830be5f9bb0dccb3048bc2ef12c6bc1",
+        "time": "2022-05-30T16:06:51+00:00",
+        "author_time": "2022-05-30T16:06:51+00:00",
+        "dirty": true,
+        "project": "smcompiler-diffie-beepboop",
+        "branch": "main"
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "name": "test_nb_sec_add_1",
+            "fullname": "smcompiler/test_performances.py::test_nb_sec_add_1",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 25,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.01226844099983282,
+                "max": 0.02229272699878493,
+                "mean": 0.013858050402876557,
+                "stddev": 0.0016014395440377607,
+                "rounds": 67,
+                "median": 0.01348703499934345,
+                "iqr": 0.0007671159992241883,
+                "q1": 0.013152229999832343,
+                "q3": 0.013919345999056532,
+                "iqr_outliers": 5,
+                "stddev_outliers": 5,
+                "outliers": "5;5",
+                "ld15iqr": 0.01226844099983282,
+                "hd15iqr": 0.015790142000696505,
+                "ops": 72.16022246480118,
+                "total": 0.9284893769927294,
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2022-06-01T16:17:36.895534",
+    "version": "3.4.1"
+}

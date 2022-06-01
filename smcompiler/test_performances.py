@@ -31,20 +31,20 @@ def parametrized_parties_expr(
 ) -> tuple[dict[str, dict[Secret, int]], Expression]:
 
     assert nb_parties > 1
-    secrets = [Secret() for _ in range(nb_parties)]
-    # we make sure our secret values will not make the computation overcome the Share.FIELD_Q value
+    secrets = [Secret() for _ in range(2)]
+    # only first 3 parties have secrets to share, we don't vary the number of secrets
     parties = {
-        "Party_{}".format(i + 1): {sec: 1 if rd.random() < 0.8 else 2}
-        for i, sec in enumerate(secrets)
+        "Party_{}".format(i + 1): {secrets[i]: i} if i < 2 else {}
+        for i in range(nb_parties)
     }
     # print("Created parties: {}".format(parties))
 
     expr = None
-
+    nb_secrets = len(secrets)
     if nb_secret_additions > 0:
         expr = secrets[0]
         for i in range(nb_secret_additions):
-            expr += secrets[(i + 1) % nb_parties]
+            expr += secrets[(i + 1) % nb_secrets]
     elif nb_scalar_additions > 0:
         expr = Scalar(0)
         for i in range(nb_scalar_additions):
@@ -52,7 +52,9 @@ def parametrized_parties_expr(
     elif nb_secret_multiplications > 0:
         expr = secrets[0]
         for i in range(nb_secret_multiplications):
-            expr *= secrets[(i + 1) % nb_parties]
+            # we make sure our secret values will not make the computation overcome the Share.FIELD_Q value
+            # the recursive stack will disallow more than 1000 recursions, in esperance we'll be way below
+            expr *= secrets[0 if rd.random() < 0.99 else 1]
     elif nb_scalar_multiplications > 0:
         expr = Scalar(1)
         for i in range(nb_scalar_multiplications):
@@ -66,6 +68,7 @@ def parametrized_parties_expr(
         )
     else:
         # print("Computing expression: {}".format(expr))
+        # time.sleep(5)
         return parties, expr
 
 
@@ -143,14 +146,28 @@ def write_comm_cost(caller: str, protocol="http", host="localhost", port=5000) -
             comm_cost_dict = json.load(f)
 
         comm_cost_dict[caller] = comm_cost
-
+        # awful messy function to sort the dict by keys to preserver function order
+        comm_cost_dict = dict(
+            sorted(
+                comm_cost_dict.items(),
+                key=lambda x: int.from_bytes(
+                    str(x[0].split("_")[:-1]).encode(), byteorder="little"
+                )
+                * 10000
+                + int(x[0].split("_")[-1]),
+            )
+        )
         with open("communication_cost.json", "w") as f:
             json.dump(comm_cost_dict, f)
     time.sleep(2)
 
 
 def test_nb_parties_2(benchmark):
-    parties, expr = parametrized_parties_expr(nb_parties=2, nb_secret_additions=1)
+    # we retrieve the number of parties from the number in the end of the current function's name
+    parties, expr = parametrized_parties_expr(
+        nb_parties=int(inspect.currentframe().f_code.co_name.split("_")[-1]),
+        nb_secret_additions=1,
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -160,7 +177,10 @@ def test_nb_parties_2(benchmark):
 
 
 def test_nb_parties_4(benchmark):
-    parties, expr = parametrized_parties_expr(nb_parties=4, nb_secret_additions=1)
+    parties, expr = parametrized_parties_expr(
+        nb_parties=int(inspect.currentframe().f_code.co_name.split("_")[-1]),
+        nb_secret_additions=1,
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -170,7 +190,10 @@ def test_nb_parties_4(benchmark):
 
 
 def test_nb_parties_8(benchmark):
-    parties, expr = parametrized_parties_expr(nb_parties=8, nb_secret_additions=1)
+    parties, expr = parametrized_parties_expr(
+        nb_parties=int(inspect.currentframe().f_code.co_name.split("_")[-1]),
+        nb_secret_additions=1,
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -180,7 +203,23 @@ def test_nb_parties_8(benchmark):
 
 
 def test_nb_parties_16(benchmark):
-    parties, expr = parametrized_parties_expr(nb_parties=16, nb_secret_additions=1)
+    parties, expr = parametrized_parties_expr(
+        nb_parties=int(inspect.currentframe().f_code.co_name.split("_")[-1]),
+        nb_secret_additions=1,
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_parties_25(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_parties=int(inspect.currentframe().f_code.co_name.split("_")[-1]),
+        nb_secret_additions=1,
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -190,7 +229,36 @@ def test_nb_parties_16(benchmark):
 
 
 def test_nb_parties_32(benchmark):
-    parties, expr = parametrized_parties_expr(nb_parties=32, nb_secret_additions=1)
+    parties, expr = parametrized_parties_expr(
+        nb_parties=int(inspect.currentframe().f_code.co_name.split("_")[-1]),
+        nb_secret_additions=1,
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_parties_48(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_parties=int(inspect.currentframe().f_code.co_name.split("_")[-1]),
+        nb_secret_additions=1,
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_parties_64(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_parties=int(inspect.currentframe().f_code.co_name.split("_")[-1]),
+        nb_secret_additions=1,
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -200,7 +268,9 @@ def test_nb_parties_32(benchmark):
 
 
 def test_nb_sec_add_1(benchmark):
-    parties, expr = parametrized_parties_expr(nb_secret_additions=1)
+    parties, expr = parametrized_parties_expr(
+        nb_secret_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -210,7 +280,33 @@ def test_nb_sec_add_1(benchmark):
 
 
 def test_nb_sec_add_4(benchmark):
-    parties, expr = parametrized_parties_expr(nb_secret_additions=4)
+    parties, expr = parametrized_parties_expr(
+        nb_secret_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_sec_add_8(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_secret_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_sec_add_16(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_secret_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -220,7 +316,33 @@ def test_nb_sec_add_4(benchmark):
 
 
 def test_nb_sec_add_32(benchmark):
-    parties, expr = parametrized_parties_expr(nb_secret_additions=32)
+    parties, expr = parametrized_parties_expr(
+        nb_secret_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_sec_add_64(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_secret_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_sec_add_128(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_secret_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -230,7 +352,9 @@ def test_nb_sec_add_32(benchmark):
 
 
 def test_nb_sec_add_256(benchmark):
-    parties, expr = parametrized_parties_expr(nb_secret_additions=256)
+    parties, expr = parametrized_parties_expr(
+        nb_secret_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -240,7 +364,9 @@ def test_nb_sec_add_256(benchmark):
 
 
 def test_nb_sec_add_512(benchmark):
-    parties, expr = parametrized_parties_expr(nb_secret_additions=512)
+    parties, expr = parametrized_parties_expr(
+        nb_secret_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -250,7 +376,9 @@ def test_nb_sec_add_512(benchmark):
 
 
 def test_nb_scal_add_1(benchmark):
-    parties, expr = parametrized_parties_expr(nb_scalar_additions=1)
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -260,7 +388,33 @@ def test_nb_scal_add_1(benchmark):
 
 
 def test_nb_scal_add_4(benchmark):
-    parties, expr = parametrized_parties_expr(nb_scalar_additions=4)
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_scal_add_8(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_scal_add_16(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -270,7 +424,33 @@ def test_nb_scal_add_4(benchmark):
 
 
 def test_nb_scal_add_32(benchmark):
-    parties, expr = parametrized_parties_expr(nb_scalar_additions=32)
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_scal_add_64(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_scal_add_128(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -280,7 +460,9 @@ def test_nb_scal_add_32(benchmark):
 
 
 def test_nb_scal_add_256(benchmark):
-    parties, expr = parametrized_parties_expr(nb_scalar_additions=256)
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -290,7 +472,9 @@ def test_nb_scal_add_256(benchmark):
 
 
 def test_nb_scal_add_512(benchmark):
-    parties, expr = parametrized_parties_expr(nb_scalar_additions=512)
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_additions=int(inspect.currentframe().f_code.co_name.split("_")[-1])
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -300,7 +484,11 @@ def test_nb_scal_add_512(benchmark):
 
 
 def test_nb_sec_mul_1(benchmark):
-    parties, expr = parametrized_parties_expr(nb_secret_multiplications=1)
+    parties, expr = parametrized_parties_expr(
+        nb_secret_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -310,7 +498,39 @@ def test_nb_sec_mul_1(benchmark):
 
 
 def test_nb_sec_mul_4(benchmark):
-    parties, expr = parametrized_parties_expr(nb_secret_multiplications=4)
+    parties, expr = parametrized_parties_expr(
+        nb_secret_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_sec_mul_8(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_secret_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_sec_mul_16(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_secret_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -320,7 +540,39 @@ def test_nb_sec_mul_4(benchmark):
 
 
 def test_nb_sec_mul_32(benchmark):
-    parties, expr = parametrized_parties_expr(nb_secret_multiplications=32)
+    parties, expr = parametrized_parties_expr(
+        nb_secret_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_sec_mul_64(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_secret_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_sec_mul_128(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_secret_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -330,7 +582,11 @@ def test_nb_sec_mul_32(benchmark):
 
 
 def test_nb_sec_mul_256(benchmark):
-    parties, expr = parametrized_parties_expr(nb_secret_multiplications=256)
+    parties, expr = parametrized_parties_expr(
+        nb_secret_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -340,7 +596,11 @@ def test_nb_sec_mul_256(benchmark):
 
 
 def test_nb_sec_mul_400(benchmark):
-    parties, expr = parametrized_parties_expr(nb_secret_multiplications=400)
+    parties, expr = parametrized_parties_expr(
+        nb_secret_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -350,7 +610,11 @@ def test_nb_sec_mul_400(benchmark):
 
 
 def test_nb_scal_mul_1(benchmark):
-    parties, expr = parametrized_parties_expr(nb_scalar_multiplications=1)
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -360,7 +624,39 @@ def test_nb_scal_mul_1(benchmark):
 
 
 def test_nb_scal_mul_4(benchmark):
-    parties, expr = parametrized_parties_expr(nb_scalar_multiplications=4)
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_scal_mul_8(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_scal_mul_16(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -370,7 +666,39 @@ def test_nb_scal_mul_4(benchmark):
 
 
 def test_nb_scal_mul_32(benchmark):
-    parties, expr = parametrized_parties_expr(nb_scalar_multiplications=32)
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_scal_mul_64(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
+    server_proc, clients, queue = create_environement(parties, expr)
+    start_server_proc(server_proc)
+    run_processes(clients, queue)
+    write_comm_cost(str(inspect.currentframe().f_code.co_name))
+    benchmark(run_processes, clients, queue)
+    check_results_stop_serv_proc(server_proc, queue, len(clients))
+
+
+def test_nb_scal_mul_128(benchmark):
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -380,7 +708,11 @@ def test_nb_scal_mul_32(benchmark):
 
 
 def test_nb_scal_mul_256(benchmark):
-    parties, expr = parametrized_parties_expr(nb_scalar_multiplications=256)
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
@@ -390,7 +722,11 @@ def test_nb_scal_mul_256(benchmark):
 
 
 def test_nb_scal_mul_400(benchmark):
-    parties, expr = parametrized_parties_expr(nb_scalar_multiplications=400)
+    parties, expr = parametrized_parties_expr(
+        nb_scalar_multiplications=int(
+            inspect.currentframe().f_code.co_name.split("_")[-1]
+        )
+    )
     server_proc, clients, queue = create_environement(parties, expr)
     start_server_proc(server_proc)
     run_processes(clients, queue)
