@@ -73,7 +73,7 @@
         {
             "group": null,
             "name": "test_nb_scal_add_1",
-            "fullname": "smcompiler/test_performances.py::test_nb_scal_add_1",
+            "fullname": "1smcompiler/test_performances.py::test_nb_scal_add_1",
             "params": null,
             "param": null,
             "extra_info": {},
@@ -108,7 +108,7 @@
         {
             "group": null,
             "name": "test_nb_scal_add_4",
-            "fullname": "smcompiler/test_performances.py::test_nb_scal_add_4",
+            "fullname": "2smcompiler/test_performances.py::test_nb_scal_add_4",
             "params": null,
             "param": null,
             "extra_info": {},
@@ -143,7 +143,7 @@
         {
             "group": null,
             "name": "test_nb_scal_add_8",
-            "fullname": "smcompiler/test_performances.py::test_nb_scal_add_8",
+            "fullname": "3smcompiler/test_performances.py::test_nb_scal_add_8",
             "params": null,
             "param": null,
             "extra_info": {},
@@ -178,7 +178,7 @@
         {
             "group": null,
             "name": "test_nb_scal_add_16",
-            "fullname": "smcompiler/test_performances.py::test_nb_scal_add_16",
+            "fullname": "4smcompiler/test_performances.py::test_nb_scal_add_16",
             "params": null,
             "param": null,
             "extra_info": {},
@@ -213,7 +213,7 @@
         {
             "group": null,
             "name": "test_nb_scal_add_32",
-            "fullname": "smcompiler/test_performances.py::test_nb_scal_add_32",
+            "fullname": "5smcompiler/test_performances.py::test_nb_scal_add_32",
             "params": null,
             "param": null,
             "extra_info": {},
@@ -248,7 +248,7 @@
         {
             "group": null,
             "name": "test_nb_scal_add_64",
-            "fullname": "smcompiler/test_performances.py::test_nb_scal_add_64",
+            "fullname": "6smcompiler/test_performances.py::test_nb_scal_add_64",
             "params": null,
             "param": null,
             "extra_info": {},
@@ -283,7 +283,7 @@
         {
             "group": null,
             "name": "test_nb_scal_add_128",
-            "fullname": "smcompiler/test_performances.py::test_nb_scal_add_128",
+            "fullname": "7smcompiler/test_performances.py::test_nb_scal_add_128",
             "params": null,
             "param": null,
             "extra_info": {},
@@ -318,7 +318,7 @@
         {
             "group": null,
             "name": "test_nb_scal_add_256",
-            "fullname": "smcompiler/test_performances.py::test_nb_scal_add_256",
+            "fullname": "8smcompiler/test_performances.py::test_nb_scal_add_256",
             "params": null,
             "param": null,
             "extra_info": {},
@@ -353,7 +353,7 @@
         {
             "group": null,
             "name": "test_nb_scal_add_512",
-            "fullname": "smcompiler/test_performances.py::test_nb_scal_add_512",
+            "fullname": "9smcompiler/test_performances.py::test_nb_scal_add_512",
             "params": null,
             "param": null,
             "extra_info": {},
