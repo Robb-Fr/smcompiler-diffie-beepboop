@@ -1,0 +1,5 @@
+Werkzeug==2.0.0
+Flask
+pytest
+requests
+pytest-benchmark
