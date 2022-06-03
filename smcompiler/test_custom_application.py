@@ -75,16 +75,20 @@ def suite(parties, expr, expected):
 
 
 """
-Custom Application: Balélec Negotiations 
+Custom Application: Balelouc Negotiations 
 
-Three parties, the CLIC Bar, the Balélec committee and a drink wholesaler, are trying to estimate the conditions under which they could be profitable during this edition of Balélec. 
+Every year, on the FLEP campus, a big student festival under the name of Balelouc is held. 
+The bars on the festival site are held by student associations, such as the IC student association CLIC.
+Three parties, the CLIC Bar, the Balelouc festival committee and a drink wholesaler, are trying to estimate 
+the conditions under which they could be profitable during this edition of the Balelouc festival. 
 The CLIC Bar estimates n_drinks, the number of drinks they believe they will sell during the festival. 
-The Balélec committee estimates festival_price, the price at which they would like drinks to be sold during the festival. 
+The Balelouc committee estimates festival_price, the price at which they would like drinks to be sold during the festival. 
 The drink wholesaler estimates base_price, the price at which it would like to sell its drinks to the festival for resale. 
-They would like to each obtain an estimation of how much profit they will make, given the value they have estimated. Since this is a negotiation, they do not which to reveal their estimations to the other parties but wish to determine if their aggregated estimations work well together. 
+They would like to each obtain an estimation of how much profit they will make, given the value they have estimated. 
+Since this is a negotiation, they do not which to reveal their estimations to the other parties but wish to determine if their aggregated estimations work well together. 
 
 A few precisions: 
-- The CLIC Bar agreeed to give two free drinks to Martin Vetterli 
+- The CLIC Bar agreeed to give two free drinks to the FLEP President, Vartin Metterli 
 - They want to compute this overall profit over the next 10 years 
 
 The final value is therefore : P = ((n_drinks - 2) * (festival_price - base_price)) * 10
